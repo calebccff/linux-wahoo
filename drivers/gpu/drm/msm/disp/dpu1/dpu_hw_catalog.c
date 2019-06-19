@@ -1419,6 +1419,8 @@ static void msm8998_cfg_init(struct dpu_mdss_cfg *dpu_cfg)
 		.mixer = msm8998_lm,
 		.pingpong_count = ARRAY_SIZE(sdm845_pp),
 		.pingpong = sdm845_pp,
+		.dsc_count = ARRAY_SIZE(sdm845_dsc),
+		.dsc = sdm845_dsc,
 		.intf_count = ARRAY_SIZE(msm8998_intf),
 		.intf = msm8998_intf,
 		.vbif_count = ARRAY_SIZE(msm8998_vbif),
