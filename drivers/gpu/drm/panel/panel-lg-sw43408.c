@@ -20,6 +20,7 @@
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
 #include <drm/drm_print.h>
+#include <drm/drm_dsc.h>
 
 #include <video/mipi_display.h>
 
@@ -397,6 +398,7 @@ poweroff:
 static int lg_panel_enable(struct drm_panel *panel)
 {
 	struct panel_info *pinfo = to_panel_info(panel);
+	struct drm_dsc_picture_parameter_set pps;
 	int ret;
 
 	if (pinfo->enabled)
@@ -406,6 +408,20 @@ static int lg_panel_enable(struct drm_panel *panel)
 		DRM_DEV_ERROR(panel->dev,
 				"Failed to enable backlight %d\n", ret);
 		return ret;
+	}
+
+	if (panel->dsc) {
+		/* this panel uses DSC so send the pps */
+		drm_dsc_pps_payload_pack(&pps, panel->dsc);
+		print_hex_dump(KERN_DEBUG, "DSC params:", DUMP_PREFIX_NONE,
+                               16, 1, &pps, sizeof(pps), false);
+
+		//ret = mipi_dsi_picture_parameter_set(pinfo->link, &pps);
+		//if (ret < 0) {
+		//	DRM_DEV_ERROR(panel->dev,
+		//		      "failed to set pps: %d\n", ret);
+		//	return ret;
+		//}
 	}
 
 	pinfo->enabled = true;
@@ -655,6 +671,7 @@ static int panel_probe(struct mipi_dsi_device *dsi)
 {
 	struct panel_info *pinfo;
 	const struct panel_desc *desc;
+	struct drm_dsc_config *dsc;
 	int err;
 
 	pinfo = devm_kzalloc(&dsi->dev, sizeof(*pinfo), GFP_KERNEL);
@@ -674,8 +691,24 @@ static int panel_probe(struct mipi_dsi_device *dsi)
 	if (err < 0)
 		return err;
 
-	err = mipi_dsi_attach(dsi);
-	return err;
+	/* The panel is DSC panel only, set the dsc params */
+	dsc = devm_kzalloc(&dsi->dev, sizeof(*dsc), GFP_KERNEL);
+	if (!dsc)
+		return -ENOMEM;
+
+	dsc->dsc_version_major = 0x1;
+	dsc->dsc_version_minor = 0x1;
+
+	dsc->slice_height = 16;
+	dsc->slice_width = 540;
+	dsc->slice_count = 1;
+	dsc->bits_per_component = 8;
+	dsc->bits_per_pixel = 8;
+	dsc->block_pred_enable = true;
+
+	pinfo->base.dsc = dsc;
+
+	return mipi_dsi_attach(dsi);
 }
 
 static int panel_remove(struct mipi_dsi_device *dsi)
