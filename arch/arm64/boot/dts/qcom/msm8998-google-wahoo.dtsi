@@ -10,10 +10,41 @@
 	aliases {
 		serial0 = &blsp2_uart1;
 		serial1 = &blsp1_uart3;
+		display0 = &framebuffer0;
 	};
 
 	chosen {
-		stdout-path = "serial0:115200n8";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* Add "earlycon" intended to be used in combination with UART serial console */
+		bootargs = "earlycon";
+
+		stdout-path = "display0";
+
+		/*
+		 * HACK: Use display framebuffer setup by the UEFI XBL bootloader for simplefb.
+		 * the address was extracted from a bootloader dd image using the following:
+		 * $ strings xbl.img | grep 'Display Reserved'
+		 */
+		framebuffer0: framebuffer@9d400000 {
+			compatible = "simple-framebuffer";
+			reg = <0 0x9D400000 0 (1440 * 2280 * 4)>;
+			width = <1440>;
+			height = <2280>;
+			stride = <(1440 * 4)>;
+			format = "a8r8g8b8";
+		};
+	};
+
+	reserved-memory {
+		/* HACK: Bootloader display framebuffer memory region */
+		fb_mem: memory@9d400000 {
+			compatible = "removed-dma-pool";
+			reg = <0 0x9D400000 0 (1440 * 2280 * 4)>;
+			no-map;
+		};
 	};
 
 	vph_pwr: vph-pwr-regulator {
@@ -38,100 +69,28 @@
 	};
 };
 
-&blsp2_uart1 {
-	status = "okay";
-};
+// &pm8005_lsid1 {
+// 	pm8005-regulators {
+// 		compatible = "qcom,pm8005-regulators";
 
-&etf {
-	status = "okay";
-};
+// 		vdd_s1-supply = <&vph_pwr>;
 
-&etm1 {
-	status = "okay";
-};
+// 		pm8005_s1: s1 { /* VDD_GFX supply */
+// 			regulator-min-microvolt = <524000>;
+// 			regulator-max-microvolt = <1100000>;
+// 			regulator-enable-ramp-delay = <500>;
 
-&etm2 {
-	status = "okay";
-};
-
-&etm3 {
-	status = "okay";
-};
-
-&etm4 {
-	status = "okay";
-};
-
-&etm5 {
-	status = "okay";
-};
-
-&etm6 {
-	status = "okay";
-};
-
-&etm7 {
-	status = "okay";
-};
-
-&etm8 {
-	status = "okay";
-};
-
-&etr {
-	status = "okay";
-};
-
-&funnel1 {
-	status = "okay";
-};
-
-&funnel2 {
-	status = "okay";
-};
-
-&funnel3 {
-	status = "okay";
-};
-
-&funnel4 {
-	// FIXME: Figure out why clock late_initcall crashes the board with
-	// this enabled.
-	// status = "okay";
-};
-
-&funnel5 {
-	// FIXME: Figure out why clock late_initcall crashes the board with
-	// this enabled.
-	// status = "okay";
-};
-
-&pm8005_lsid1 {
-	pm8005-regulators {
-		compatible = "qcom,pm8005-regulators";
-
-		vdd_s1-supply = <&vph_pwr>;
-
-		pm8005_s1: s1 { /* VDD_GFX supply */
-			regulator-min-microvolt = <524000>;
-			regulator-max-microvolt = <1100000>;
-			regulator-enable-ramp-delay = <500>;
-
-			/* hack until we rig up the gpu consumer */
-			regulator-always-on;
-		};
-	};
-};
+// 			/* hack until we rig up the gpu consumer */
+// 			regulator-always-on;
+// 		};
+// 	};
+// };
 
 &qusb2phy {
 	status = "okay";
 
 	vdda-pll-supply = <&vreg_l12a_1p8>;
 	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
-};
-
-&replicator1 {
-	status = "okay";
 };
 
 &rpm_requests {
@@ -235,7 +194,7 @@
 			regulator-min-microvolt = <1880000>;
 			regulator-max-microvolt = <1880000>;
 		};
-		vreg_l15a_1p8: l15 {
+		vreg_15a_1p8: l15 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 		};
@@ -316,32 +275,16 @@
 	};
 };
 
-&remoteproc_adsp {
-	status = "okay";
-};
+// &remoteproc_adsp {
+// 	status = "okay";
+// };
 
-&remoteproc_slpi {
-	status = "okay";
-};
+// &remoteproc_slpi {
+// 	status = "okay";
+// };
 
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
-};
-
-&sdhc2 {
-	status = "okay";
-	cd-gpios = <&tlmm 95 GPIO_ACTIVE_LOW>;
-
-	vmmc-supply = <&vreg_l21a_2p95>;
-	vqmmc-supply = <&vreg_l13a_2p95>;
-
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&sdc2_clk_on  &sdc2_cmd_on  &sdc2_data_on  &sdc2_cd_on>;
-	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
-};
-
-&stm {
-	status = "okay";
 };
 
 &ufshc {
@@ -368,7 +311,7 @@
 };
 
 &usb3_dwc3 {
-	dr_mode = "host"; /* Force to host until we have Type-C hooked up */
+	dr_mode = "gadget"; /* Force to gadget until we sort out dual role */
 };
 
 &usb3phy {
