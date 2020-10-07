@@ -39,11 +39,22 @@
 	};
 
 	reserved-memory {
+		#address-cells = <2>;
+ 		#size-cells = <2>;
+ 		ranges;
+
 		/* HACK: Bootloader display framebuffer memory region */
 		fb_mem: memory@9d400000 {
 			compatible = "removed-dma-pool";
 			reg = <0 0x9D400000 0 (1440 * 2280 * 4)>;
 			no-map;
+		};
+
+		ramoops: ramoops@0b000000 {
+			compatible = "ramoops";
+			reg = <0 0x0b000000 0 0x200000>; /* 64kB */
+			record-size = <0x4000>; /* 16kB */
+			console-size = <0>; /* disabled by default */
 		};
 	};
 
@@ -54,6 +65,24 @@
 		regulator-boot-on;
 	};
 };
+
+&gpucc {
+	status = "disabled";
+};
+
+&anoc1_smmu {
+	status = "disabled";
+};
+
+&anoc2_smmu {
+	status = "disabled";
+};
+
+&pcie0 {
+	status = "disabled";
+};
+
+
 
 &blsp1_uart3 {
 	status = "okay";
@@ -69,22 +98,22 @@
 	};
 };
 
-// &pm8005_lsid1 {
-// 	pm8005-regulators {
-// 		compatible = "qcom,pm8005-regulators";
+&pm8005_lsid1 {
+	pm8005-regulators {
+		compatible = "qcom,pm8005-regulators";
 
-// 		vdd_s1-supply = <&vph_pwr>;
+		vdd_s1-supply = <&vph_pwr>;
 
-// 		pm8005_s1: s1 { /* VDD_GFX supply */
-// 			regulator-min-microvolt = <524000>;
-// 			regulator-max-microvolt = <1100000>;
-// 			regulator-enable-ramp-delay = <500>;
+		pm8005_s1: s1 { /* VDD_GFX supply */
+			regulator-min-microvolt = <524000>;
+			regulator-max-microvolt = <1100000>;
+			regulator-enable-ramp-delay = <500>;
 
-// 			/* hack until we rig up the gpu consumer */
-// 			regulator-always-on;
-// 		};
-// 	};
-// };
+			/* hack until we rig up the gpu consumer */
+			regulator-always-on;
+		};
+	};
+};
 
 &qusb2phy {
 	status = "okay";

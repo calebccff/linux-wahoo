@@ -200,6 +200,7 @@ config ARM64
 	select SWIOTLB
 	select SYSCTL_EXCEPTION_TRACE
 	select THREAD_INFO_IN_TASK
+	select HAVE_KERNEL_LZ4
 	help
 	  ARM 64-bit (AArch64) Linux support.
 
