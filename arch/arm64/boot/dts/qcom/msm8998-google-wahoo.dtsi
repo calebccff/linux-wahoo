@@ -82,10 +82,8 @@
 	status = "disabled";
 };
 
-
-
 &blsp1_uart3 {
-	status = "okay";
+	status = "disabled";
 
 	bluetooth {
 		compatible = "qcom,wcn3990-bt";
@@ -340,7 +338,7 @@
 };
 
 &usb3_dwc3 {
-	dr_mode = "gadget"; /* Force to gadget until we sort out dual role */
+	dr_mode = "peripheral"; /* Force to gadget until we sort out dual role */
 };
 
 &usb3phy {
