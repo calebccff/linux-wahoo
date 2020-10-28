@@ -182,6 +182,26 @@ void panic(const char *fmt, ...)
 	int state = 0;
 	int old_cpu, this_cpu;
 	bool _crash_kexec_post_notifiers = crash_kexec_post_notifiers;
+	
+	// Manually dump pstore here
+	void* alt_ramoops = ioremap(0xb0e00000ULL, 0x200000);
+    memset(alt_ramoops, 'A', 0x200000);
+    // copy the dmesg into the ram region
+    // without compression or encryption.
+    // will be visible in Pixel 3 downstream /dev/access-ramoops.
+    // (yeah this isn't how you're supposed to use pstore, but I really want to get the log, ok?)
+    memcpy(alt_ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
+    // void* ramoops = ioremap(0xa1810000ULL, 0x200000);
+    // memset(ramoops, 'B', 0x200000);
+    // void* metadata = ioremap(0xa1c10000ULL, 0x1000);
+    // memset(metadata, 'C', 0x1000);
+
+	// Zhuowei: reboot now please; I don't want you to set my precious phone on fire
+    // borrowed from msm-poweroff
+    int* pshold = ioremap(0x10ac000, 4);
+    *pshold = 0; // reboot
+    while (1) {}
+    emergency_restart();
 
 	/*
 	 * Disable local interrupts. This will prevent panic_smp_self_stop

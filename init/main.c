@@ -908,6 +908,19 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
 	/* trace_printk can be enabled here */
 	early_trace_init();
 
+	// // Manually dump pstore here
+    // // copy the dmesg into the ram region
+    // // without compression or encryption.
+    // // will be visible in Pixel 3 downstream /dev/access-ramoops.
+    // // (yeah this isn't how you're supposed to use pstore, but I really want to get the log, ok?)
+    // void* ramoops = ioremap(0xa1810000ULL, 0x200000);
+    // memset(ramoops, '\00', 0x200000);
+	// memcpy(ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
+
+	// int* pshold = ioremap(0x10ac000, 4);
+    // *pshold = 0; // reboot
+    // while (1) {}
+
 	// Zhuowei: reboot now please; I don't want you to set my precious phone on fire
     // borrowed from msm-poweroff
     // int* pshold = ioremap(0x10ac000, 4);
@@ -962,6 +975,12 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
 	softirq_init();
 	timekeeping_init();
 
+	// Zhuowei: reboot now please; I don't want you to set my precious phone on fire
+    // borrowed from msm-poweroff
+    // int* pshold = ioremap(0x10ac000, 4);
+    // *pshold = 0; // reboot
+    // while (1) {}
+
 	/*
 	 * For best initial stack canary entropy, prepare it after:
 	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
@@ -995,6 +1014,12 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
 	if (panic_later)
 		panic("Too many boot %s vars at `%s'", panic_later,
 		      panic_param);
+	
+	// Zhuowei: reboot now please; I don't want you to set my precious phone on fire
+    // borrowed from msm-poweroff
+    // int* pshold = ioremap(0x10ac000, 4);
+    // *pshold = 0; // reboot
+    // while (1) {}
 
 	lockdep_init();
 
@@ -1062,6 +1087,23 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
 	arch_post_acpi_subsys_init();
 	sfi_init_late();
 	kcsan_init();
+
+	// // Manually dump pstore here
+	// void* alt_ramoops = ioremap(0xb0e00000ULL, 0x200000);
+    // memset(alt_ramoops, 'A', 0x200000);
+    // // copy the dmesg into the ram region
+    // // without compression or encryption.
+    // // will be visible in Pixel 3 downstream /dev/access-ramoops.
+    // // (yeah this isn't how you're supposed to use pstore, but I really want to get the log, ok?)
+    // memcpy(alt_ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
+    // void* ramoops = ioremap(0xa1810000ULL, 0x200000);
+    // memset(ramoops, 'B', 0x200000);
+    // void* metadata = ioremap(0xa1c10000ULL, 0x1000);
+    // memset(metadata, 'C', 0x1000);
+
+	// int* pshold = ioremap(0x10ac000, 4);
+    // *pshold = 0; // reboot
+    // while (1) {}
 
 	/* Do the rest non-__init'ed, we're now alive */
 	arch_call_rest_init();
@@ -1417,6 +1459,19 @@ void __weak free_initmem(void)
 static int __ref kernel_init(void *unused)
 {
 	int ret;
+
+	//Manually dump pstore here
+    // copy the dmesg into the ram region
+    // without compression or encryption.
+    // will be visible in Pixel 3 downstream /dev/access-ramoops.
+    // (yeah this isn't how you're supposed to use pstore, but I really want to get the log, ok?)
+    void* ramoops = ioremap(0xa1810000ULL, 0x200000);
+    memset(ramoops, '\00', 0x200000);
+	memcpy(ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
+
+	int* pshold = ioremap(0x10ac000, 4);
+    *pshold = 0; // reboot
+    while (1) {}
 
 	kernel_init_freeable();
 	/* need to finish all async __init code before freeing the memory */

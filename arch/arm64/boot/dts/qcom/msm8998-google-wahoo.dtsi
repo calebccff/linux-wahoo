@@ -10,7 +10,7 @@
 	aliases {
 		serial0 = &blsp2_uart1;
 		serial1 = &blsp1_uart3;
-		display0 = &framebuffer0;
+		//display0 = &framebuffer0;
 	};
 
 	chosen {
@@ -21,21 +21,21 @@
 		/* Add "earlycon" intended to be used in combination with UART serial console */
 		bootargs = "earlycon";
 
-		stdout-path = "display0";
+		// stdout-path = "display0";
 
-		/*
-		 * HACK: Use display framebuffer setup by the UEFI XBL bootloader for simplefb.
-		 * the address was extracted from a bootloader dd image using the following:
-		 * $ strings xbl.img | grep 'Display Reserved'
-		 */
-		framebuffer0: framebuffer@9d600000 {
-			compatible = "simple-framebuffer";
-			reg = <0 0x9D600000 0 (1440 * 2880 * 4)>;
-			width = <1440>;
-			height = <2880>;
-			stride = <(1440 * 4)>;
-			format = "a8r8g8b8";
-		};
+		// /*
+		//  * HACK: Use display framebuffer setup by the UEFI XBL bootloader for simplefb.
+		//  * the address was extracted from a bootloader dd image using the following:
+		//  * $ strings xbl.img | grep 'Display Reserved'
+		//  */
+		// framebuffer0: framebuffer@9d600000 {
+		// 	compatible = "simple-framebuffer";
+		// 	reg = <0 0x9D600000 0 (1440 * 2880 * 4)>;
+		// 	width = <1440>;
+		// 	height = <2880>;
+		// 	stride = <(1440 * 4)>;
+		// 	format = "a8r8g8b8";
+		// };
 	};
 
 	reserved-memory {
@@ -43,19 +43,44 @@
  		#size-cells = <2>;
  		ranges;
 
-		/* HACK: Bootloader display framebuffer memory region */
-		fb_mem: memory@9d600000 {
-			compatible = "removed-dma-pool";
-			reg = <0 0x9D600000 0 (1440 * 2880 * 4)>;
+		// /* HACK: Bootloader display framebuffer memory region */
+		// fb_mem: memory@9d600000 {
+		// 	compatible = "removed-dma-pool";
+		// 	reg = <0 0x9D600000 0 (1440 * 2880 * 4)>;
+		// 	no-map;
+		// };
+
+		// ramoops: ramoops@0b000000 {
+		// 	compatible = "ramoops";
+		// 	reg = <0 0x0b000000 0 0x200000>; /* 64kB */
+		// 	// record-size = <0x4000>; /* 16kB */
+		// 	// console-size = <0>; /* disabled by default */
+		// 	record-size = <0x20000>;
+		// 	console-size = <0x100000>;
+		// 	pmsg-size = <0x80000>;
+		// };
+
+		// ramoops_meta_mem: ramoops_meta_region@affff000 {
+		// 	compatible = "ramoops";
+		// 	reg = <0 0xaffff000 0 0x1000>;
+		// };
+
+		alt_ramoops_mem: alt_ramoops_region@b0e00000 {
 			no-map;
+			reg = <0 0xb0e00000 0 0x200000>;
 		};
 
-		ramoops: ramoops@0b000000 {
-			compatible = "ramoops";
-			reg = <0 0x0b000000 0 0x200000>; /* 64kB */
-			record-size = <0x4000>; /* 16kB */
-			console-size = <0>; /* disabled by default */
+		meta_ramoops_mem: meta_ramoops_region@affff000 {
+			no-map;
+			reg = <0 0xaffff000 0 0x1000>;
 		};
+
+		ramoops_mem: ramoops_region@0b000000 {
+			no-map;
+			reg = <0 0x0b000000 0 0x200000>;
+		};
+
+
 	};
 
 	vph_pwr: vph-pwr-regulator {
@@ -332,8 +357,90 @@
 // 	status = "okay";
 // };
 
+// &mdss {
+// 	status = "okay";
+// };
+
+// &mdss_mdp {
+// 	status = "okay";
+// };
+
+// &dsi0 {
+// 	status = "okay";
+
+// 	vddio-supply = <&vreg_l14a_1p88>;
+
+// 	pinctrl-names = "default", "sleep";
+// 	pinctrl-0 = <&dsi_default &panel_te_pin>;
+// 	pinctrl-1 = <&dsi_sleep>;
+// 	panel@0 {
+// 		compatible = "mdss,sw43402-dsc";
+// 		reg = <0>;
+
+// 		//backlight = <&backlight>;
+// 		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+
+// 		port {
+// 			panel_in: endpoint {
+// 				remote-endpoint = <&dsi0_out>;
+// 			};
+// 		};
+// 	};
+// };
+
+// &dsi0_out {
+// 	data-lanes = <0 1 2 3>;
+// 	remote-endpoint = <&panel_in>;
+// };
+
+// &dsi0_phy {
+// 	status = "okay";
+// 	vdds-supply = <&vreg_l1a_0p875>;
+// };
+
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
+
+	dsi_default: mdss_dsi_active {
+		mux {
+			pins = "gpio94", "gpio91", "gpio51";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio94", "gpio91", "gpio51";
+			drive-strength = <8>; // 8 mA
+			bias-disable; // no pull
+		};
+	};
+
+	dsi_sleep: mdss_dsi_suspend {
+		mux {
+			pins = "gpio94", "gpio91", "gpio51";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio94", "gpio91", "gpio51";
+			drive-strength = <2>; // 2 mA
+			bias-pull-down;
+		};
+	};
+
+	panel_te_pin: panel-te {
+		mux {
+			pins = "gpio10";
+			function = "mdp_vsync";
+		};
+
+		config {
+			pins = "gpio10";
+			drive-strength = <2>;
+			bias-disable;
+			input-enable;
+		};
+	};
+
 };
 
 &ufshc {
