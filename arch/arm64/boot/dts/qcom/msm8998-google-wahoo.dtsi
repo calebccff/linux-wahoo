@@ -28,11 +28,11 @@
 		 * the address was extracted from a bootloader dd image using the following:
 		 * $ strings xbl.img | grep 'Display Reserved'
 		 */
-		framebuffer0: framebuffer@9d400000 {
+		framebuffer0: framebuffer@9d600000 {
 			compatible = "simple-framebuffer";
-			reg = <0 0x9D400000 0 (1440 * 2280 * 4)>;
+			reg = <0 0x9D600000 0 (1440 * 2880 * 4)>;
 			width = <1440>;
-			height = <2280>;
+			height = <2880>;
 			stride = <(1440 * 4)>;
 			format = "a8r8g8b8";
 		};
@@ -44,9 +44,9 @@
  		ranges;
 
 		/* HACK: Bootloader display framebuffer memory region */
-		fb_mem: memory@9d400000 {
+		fb_mem: memory@9d600000 {
 			compatible = "removed-dma-pool";
-			reg = <0 0x9D400000 0 (1440 * 2280 * 4)>;
+			reg = <0 0x9D600000 0 (1440 * 2880 * 4)>;
 			no-map;
 		};
 
@@ -67,15 +67,15 @@
 };
 
 &gpucc {
-	status = "disabled";
+	//status = "disabled";
 };
 
 &anoc1_smmu {
-	status = "disabled";
+	//status = "disabled";
 };
 
 &anoc2_smmu {
-	status = "disabled";
+	//status = "disabled";
 };
 
 &pcie0 {
@@ -111,6 +111,28 @@
 			regulator-always-on;
 		};
 	};
+};
+
+&usb3 {
+	status = "okay";
+
+	/* Operate "GCC_USB30_MASTER_CLK" in HS mode (>=60 MHz) */
+	assigned-clock-rates = <19200000>, <60000000>;
+
+	/* Disable USB3 pipe_clk requirement */
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb3_dwc3 {
+	/* Drop USB 3 SuperSpeed PHY to bring up the "usb0" interface */
+	phys = <&qusb2phy>;
+	phy-names = "usb2-phy";
+
+	/* We can only operate at USB 2.0 speeds */
+	maximum-speed = "high-speed";
+
+	/* Force to peripheral until we have Type-C hooked up */
+	dr_mode = "peripheral";
 };
 
 &qusb2phy {
