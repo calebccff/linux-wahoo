@@ -908,6 +908,12 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
 	/* trace_printk can be enabled here */
 	early_trace_init();
 
+	// Zhuowei: reboot now please; I don't want you to set my precious phone on fire
+    // borrowed from msm-poweroff
+    // int* pshold = ioremap(0x10ac000, 4);
+    // *pshold = 0; // reboot
+    // while (1) {}
+
 	/*
 	 * Set up the scheduler prior starting any interrupts (such as the
 	 * timer interrupt). Full topology setup happens at smp_init()
