@@ -190,6 +190,14 @@ config DRM_PANEL_LG_LG4573
 	  Say Y here if you want to enable support for LG4573 RGB panel.
 	  To compile this driver as a module, choose M here.
 
+config DRM_PANEL_LG_SW43402
+	tristate "LG SW43402 DSI cmd mode panel"
+	depends on OF && SPI
+	select VIDEOMODE_HELPERS
+	help
+	  Say Y here if you want to enable support for LG SW43402DSI cmd mode panel found
+	  in the Google Pixel 2 XL. The panel resolution is 1440x2880@60Hz
+
 config DRM_PANEL_NEC_NL8048HL11
 	tristate "NEC NL8048HL11 RGB panel"
 	depends on GPIOLIB && OF && SPI
