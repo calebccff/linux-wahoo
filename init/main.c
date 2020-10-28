@@ -1465,13 +1465,14 @@ static int __ref kernel_init(void *unused)
     // without compression or encryption.
     // will be visible in Pixel 3 downstream /dev/access-ramoops.
     // (yeah this isn't how you're supposed to use pstore, but I really want to get the log, ok?)
-    void* ramoops = ioremap(0xa1810000ULL, 0x200000);
-    memset(ramoops, '\00', 0x200000);
-	memcpy(ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
+    // void* ramoops = ioremap(0xa1810000ULL, 0x200000);
+    // memset(ramoops, '\00', 0x200000);
+	// memcpy(ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
 
-	int* pshold = ioremap(0x10ac000, 4);
-    *pshold = 0; // reboot
-    while (1) {}
+	// int* pshold = ioremap(0x10ac000, 4);
+    // *pshold = 0; // reboot
+    // while (1) {}
+	//emergency_restart();
 
 	kernel_init_freeable();
 	/* need to finish all async __init code before freeing the memory */
