@@ -50,6 +50,7 @@ static int qcom_smmu_cfg_probe(struct arm_smmu_device *smmu)
 	arm_smmu_gr0_write(smmu, last_s2cr, reg);
 	reg = arm_smmu_gr0_read(smmu, last_s2cr);
 	if (FIELD_GET(ARM_SMMU_S2CR_TYPE, reg) != S2CR_TYPE_BYPASS) {
+		dev_info(smmu->dev, "We have bypass quirk");
 		qsmmu->bypass_quirk = true;
 		qsmmu->bypass_cbndx = smmu->num_context_banks - 1;
 

@@ -1214,6 +1214,8 @@ static int arm_smmu_map(struct iommu_domain *domain, unsigned long iova,
 	struct arm_smmu_device *smmu = to_smmu_domain(domain)->smmu;
 	int ret;
 
+	dev_info(smmu->dev, "Mapping: iova:%x, addr:%x, size:%x", iova, paddr, size);
+
 	if (!ops)
 		return -ENODEV;
 
@@ -1230,6 +1232,8 @@ static size_t arm_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
 	struct io_pgtable_ops *ops = to_smmu_domain(domain)->pgtbl_ops;
 	struct arm_smmu_device *smmu = to_smmu_domain(domain)->smmu;
 	size_t ret;
+
+	dev_info(smmu->dev, "UNMapping: iova:%x,  size:%x", iova, size);
 
 	if (!ops)
 		return 0;

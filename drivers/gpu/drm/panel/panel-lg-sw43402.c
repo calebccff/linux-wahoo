@@ -200,6 +200,9 @@ static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 		return dev_err_probe(dev, PTR_ERR(ctx->reset_gpio),
 				     "Failed to get reset-gpios\n");
 
+	// dev_info(dev, "Before dsi_set_drvdata");
+	// return 0;
+
 	ctx->dsi = dsi;
 	mipi_dsi_set_drvdata(dsi, ctx);
 
