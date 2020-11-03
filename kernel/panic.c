@@ -182,14 +182,6 @@ void panic(const char *fmt, ...)
 	int state = 0;
 	int old_cpu, this_cpu;
 	bool _crash_kexec_post_notifiers = crash_kexec_post_notifiers;
-	
-	void* ramoops = ioremap(0xa1810000ULL, 0x200000);
-    memset(ramoops, 'F', 0x200000);
-	memcpy(ramoops, log_buf_addr_get(), min(log_buf_len_get(), 0x200000));
-
-	// int* pshold = ioremap(0x10ac000, 4);
-    // *pshold = 0; // reboot
-    // while (1) {}
 
 	/*
 	 * Disable local interrupts. This will prevent panic_smp_self_stop

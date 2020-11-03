@@ -829,7 +829,7 @@ int msm_dsi_manager_register(struct msm_dsi *msm_dsi)
 	if (ret) {
 		pr_err("%s: failed to register mipi dsi host for DSI %d\n",
 			__func__, id);
-		goto fail;
+		//goto fail;
 	}
 
 	return 0;

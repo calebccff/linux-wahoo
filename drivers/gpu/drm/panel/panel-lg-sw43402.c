@@ -123,6 +123,13 @@ static int lg_sw43402_prepare(struct drm_panel *panel)
 		return ret;
 	}
 
+	// enable compression!!
+	ret = mipi_dsi_compression_mode(ctx->dsi, true);
+	if (ret < 0) {
+		dev_err(dev, "Failed to enable compression mode: %d\n", ret);
+		return ret;
+	}
+
 	ctx->prepared = true;
 	return 0;
 }
@@ -199,9 +206,6 @@ static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 	if (IS_ERR(ctx->reset_gpio))
 		return dev_err_probe(dev, PTR_ERR(ctx->reset_gpio),
 				     "Failed to get reset-gpios\n");
-
-	// dev_info(dev, "Before dsi_set_drvdata");
-	// return 0;
 
 	ctx->dsi = dsi;
 	mipi_dsi_set_drvdata(dsi, ctx);
