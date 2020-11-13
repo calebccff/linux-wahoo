@@ -70,26 +70,22 @@
 		};
 
 		mpss_mem: memory@8cc00000 {
-			reg = <0 0x8cc00000 0 0x7800000>;
-			//reg = <0x0 0x8cc00000 0x0 0x7000000>;
+			reg = <0x0 0x8cc00000 0x0 0x7000000>;
 			no-map;
 		};
 
 		venus_mem: memory@94400000 {
-			reg = <0 0x94400000 0 0x500000>;
-			//reg = <0x0 0x93c00000 0x0 0x500000>;
+			reg = <0x0 0x93c00000 0x0 0x500000>;
 			no-map;
 		};
 
 		mba_mem: memory@94100000 {
-			reg = <0 0x94900000 0 0x200000>;
-			//reg = <0x0 0x94100000 0x0 0x200000>;
+			reg = <0x0 0x94100000 0x0 0x200000>;
 			no-map;
 		};
 
 		slpi_mem: memory@94300000 {
-			reg = <0 0x94b00000 0 0xf00000>;
-			//reg = <0x0 0x94300000 0x0 0xf00000>;
+			reg = <0x0 0x94300000 0x0 0xf00000>;
 			no-map;
 		};
 
@@ -2018,10 +2014,8 @@
 			interrupt-controller;
 			#interrupt-cells = <1>;
 
-/*
 			iommus = <&mmss_smmu 0>,
 			         <&mmss_smmu 1>;
-*/
 
 			status = "disabled";
 
@@ -2201,7 +2195,6 @@
 			};
 		};
 
-/*
 		mmss_smmu: arm,smmu@cd00000 {
 			compatible = "qcom,msm8998-smmu-v2", "qcom,smmu-v2";
 			reg = <0x0cd00000 0x40000>;
@@ -2236,7 +2229,6 @@
 			         <&mmcc BIMC_SMMU_AXI_CLK>;
 			clock-names = "noc", "iface", "bus";
 		};
-*/
 
 		remoteproc_adsp: remoteproc@17300000 {
 			compatible = "qcom,msm8998-adsp-pas";

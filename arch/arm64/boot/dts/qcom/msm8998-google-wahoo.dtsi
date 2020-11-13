@@ -368,7 +368,7 @@
 	vddio-supply = <&vreg_l14a_1p88>;
 
 	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&dsi_default &panel_te_pin>;
+	pinctrl-0 = <&dsi_default>;// &panel_te_pin>;
 	pinctrl-1 = <&dsi_sleep>;
 	panel@0 {
 		compatible = "lge,sw43402";
@@ -376,7 +376,7 @@
 
 		//backlight = <&backlight>;
 		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
-		//te-gpio = <&tlmm 10 0>;
+		te-gpio = <&tlmm 10 0>;
 
 		port {
 			panel_in: endpoint {
@@ -425,19 +425,19 @@
 		};
 	};
 
-	panel_te_pin: panel-te {
-		mux {
-			pins = "gpio10";
-			function = "mdp_vsync";
-		};
+	// panel_te_pin: panel-te {
+	// 	mux {
+	// 		pins = "gpio10";
+	// 		function = "mdp_vsync";
+	// 	};
 
-		config {
-			pins = "gpio10";
-			drive-strength = <2>;
-			bias-disable;
-			input-enable;
-		};
-	};
+	// 	config {
+	// 		pins = "gpio10";
+	// 		drive-strength = <2>;
+	// 		bias-disable;
+	// 		input-enable;
+	// 	};
+	// };
 
 };
 
