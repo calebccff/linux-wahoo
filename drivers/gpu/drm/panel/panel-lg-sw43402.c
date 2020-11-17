@@ -7,6 +7,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/backlight.h>
 
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
@@ -123,6 +124,8 @@ static int lg_sw43402_prepare(struct drm_panel *panel)
 		return ret;
 	}
 
+	mipi_dsi_compression_mode(ctx->dsi, true);
+
 	ctx->prepared = true;
 	return 0;
 }
@@ -185,6 +188,41 @@ static const struct drm_panel_funcs lg_sw43402_panel_funcs = {
 	.get_modes = lg_sw43402_get_modes,
 };
 
+static int sw43402_panel_bl_update_status(struct backlight_device *bl)
+{
+	struct mipi_dsi_device *dsi = bl_get_data(bl);
+	int err;
+	u16 brightness;
+
+	brightness = (u16)backlight_get_brightness(bl);
+	// This panel needs the high and low bytes swapped for the brightness value
+	//brightness = __swab16(brightness);
+
+	err = mipi_dsi_dcs_set_display_brightness(dsi, brightness);
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+
+static const struct backlight_ops sw43402_panel_bl_ops = {
+	.update_status = sw43402_panel_bl_update_status,
+};
+
+static struct backlight_device *
+sw43402_create_backlight(struct mipi_dsi_device *dsi)
+{
+	struct device *dev = &dsi->dev;
+	const struct backlight_properties props = {
+		.type = BACKLIGHT_PLATFORM,
+		.brightness = 1023,
+		.max_brightness = 1023,
+	};
+
+	return devm_backlight_device_register(dev, dev_name(dev), dev, dsi,
+						&sw43402_panel_bl_ops, &props);
+}
+
 static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
@@ -200,9 +238,6 @@ static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 		return dev_err_probe(dev, PTR_ERR(ctx->reset_gpio),
 				     "Failed to get reset-gpios\n");
 
-	// dev_info(dev, "Before dsi_set_drvdata");
-	// return 0;
-
 	ctx->dsi = dsi;
 	mipi_dsi_set_drvdata(dsi, ctx);
 
@@ -213,6 +248,11 @@ static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 
 	drm_panel_init(&ctx->panel, dev, &lg_sw43402_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
+	
+	ctx->panel.backlight = sw43402_create_backlight(dsi);
+	if (IS_ERR(ctx->panel.backlight))
+		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight),
+					"Failed to create backlight\n");
 
 	drm_panel_add(&ctx->panel);
 
