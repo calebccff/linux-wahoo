@@ -20,6 +20,10 @@
 	qcom,msm-id = <0x124 0x20000>, <0x124 0x20001>; /* 8998v2, v2.1 */
 	qcom,board-id = <8 0>;
 
+	chosen {
+		bootargs = "clk_ignore_unused root=/dev/mmcblk0p1";
+	};
+
 	clocks {
 		compatible = "simple-bus";
 
@@ -82,6 +86,15 @@
 		gpio = <&tlmm 133 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_vddio_en>;
+	};
+
+	/* The gpio-vibrator driver enforces requiring a regulator */
+	vib_vreg: vib-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vib";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 
 	vph_pwr: vph-pwr-regulator {
@@ -184,9 +197,26 @@
 	vibrator {
 		compatible = "gpio-vibrator";
 		enable-gpios = <&pmi8998_gpio 5 GPIO_ACTIVE_HIGH>;
+		vcc-supply = <&vib_vreg>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&vib_default>;
 	};
+};
+
+&adreno_gpu {
+	status = "ok";
+
+	zap-shader {
+		memory-region = <&zap_shader_region>;
+	};
+};
+
+&adreno_smmu {
+	status = "ok";
+};
+
+&apc_cprh {
+	status = "ok";
 };
 
 &blsp1_i2c5 {
@@ -241,8 +271,77 @@
 	};
 };
 
+&blsp2_i2c1 {
+	tof-sensor@29 {
+		compatible = "st,vl53l0x";
+		reg = <0x29>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
+		#io-channel-cells = <1>;
+		label = "back_camera_tof";
+		pinctrl-names = "default";
+		pinctrl-0 = <&tof_int_n &tof_rst_n>;
+	};
+};
+
 &blsp2_uart1 {
 	status = "okay";
+};
+
+&cpufreq_hw {
+	status = "ok";
+};
+
+&dsi0 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+
+	panel: panel@0 {
+		reg = <0>;
+
+		backlight = <&pmi8998_wled>;
+		disp-te-gpios = <&tlmm 10 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&tlmm 94 GPIO_ACTIVE_HIGH>;
+
+		avdd-supply = <&lab>;
+		avee-supply = <&ibb>;
+		vddio-supply = <&vreg_l14a_1p85>;
+		tavdd-supply = <&vreg_l28_3p0>;
+		tvddio-supply = <&touch_vddio_vreg>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_reset_n &mdp_vsync_n>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				panel_in0: endpoint {
+					remote-endpoint = <&dsi0_out>;
+				};
+			};
+		};
+	};
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in0>;
+	data-lanes = <0 1 2 3>;
+};
+
+&dsi0_phy {
+	status = "okay";
+	vdds-supply = <&vreg_l1a_0p875>;
+};
+
+&gpucc {
+	status = "ok";
 };
 
 &ibb {
@@ -278,6 +377,18 @@
 	status = "ok";
 };
 
+&mdss {
+	status = "okay";
+};
+
+&mmcc {
+	status = "ok";
+};
+
+&mmss_smmu {
+	status = "ok";
+};
+
 &pm8005_lsid1 {
 	pm8005-regulators {
 		compatible = "qcom,pm8005-regulators";
@@ -286,7 +397,12 @@
 
 		/* VDD_GFX supply */
 		pm8005_s1: s1 {
-			regulator-min-microvolt = <524000>;
+			/*
+			 * HACK: Set enough voltage for max GPU frequency
+			 * and set the regulator always on until the
+			 * GPU Core Power Reduction gets available
+			 */
+			regulator-min-microvolt = <988000>;
 			regulator-max-microvolt = <1088000>;
 			regulator-enable-ramp-delay = <500>;
 			regulator-always-on;
@@ -324,6 +440,13 @@
 		function = "func2";
 		power-source = <0>;
 	};
+
+	nfc_clk_req_pin: nfc-clk-req-active {
+		pins = "gpio21";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		input-enable;
+		power-source = <1>;
+	};
 };
 
 &pmi8998_gpio {
@@ -358,11 +481,35 @@
 	};
 };
 
+&pmi8998_wled {
+	status = "okay";
+
+	default-brightness = <3000>;
+	qcom,switching-freq = <800>;
+	qcom,ovp-millivolt = <29600>;
+	qcom,current-boost-limit = <970>;
+	qcom,current-limit-microamp = <25000>;
+	qcom,num-strings = <2>;
+	qcom,enabled-strings = <0 1>;
+};
+
 &qusb2phy {
 	status = "okay";
 
 	vdda-pll-supply = <&vreg_l12a_1p8>;
 	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+};
+
+&remoteproc_adsp {
+	firmware-name = "adsp.mdt";
+};
+
+&remoteproc_mss {
+	status = "disabled";
+};
+
+&remoteproc_slpi {
+	firmware-name = "slpi.mdt";
 };
 
 &rpm_requests {
@@ -606,8 +753,52 @@
 		drive-strength = <2>;
 	};
 
+	tof_int_n: tof-int-n {
+		pins = "gpio22";
+		function = "gpio";
+		bias-pull-up;
+		drive-strength = <2>;
+		input-enable;
+	};
+
 	cam1_vdig_default: cam1-vdig-default {
 		pins = "gpio25";
+		function = "gpio";
+		bias-disable;
+		drive-strength = <2>;
+	};
+
+	tof_rst_n: tof-rst-n {
+		pins = "gpio27";
+		function = "gpio";
+		bias-disable;
+		drive-strength = <2>;
+		output-low;
+	};
+
+	cam1_rst_default: cam1-rst-n {
+		pins = "gpio28";
+		function = "gpio";
+		bias-disable;
+		drive-strength = <2>;
+	};
+
+	cam0_rst_default: cam0-rst-n {
+		pins = "gpio30";
+		function = "gpio";
+		bias-disable;
+		drive-strength = <2>;
+	};
+
+	ts_reset_n: ts-reset-n {
+		pins = "gpio89";
+		function = "gpio";
+		bias-pull-up;
+		drive-strength = <8>;
+	};
+
+	panel_reset_n: panel-rst-n {
+		pins = "gpio94";
 		function = "gpio";
 		bias-disable;
 		drive-strength = <2>;

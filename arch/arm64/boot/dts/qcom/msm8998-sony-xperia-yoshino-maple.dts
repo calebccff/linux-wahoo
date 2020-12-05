@@ -26,6 +26,28 @@
 	};
 };
 
+&dsi0 {
+	qcom,dual-dsi-mode;
+	qcom,master-dsi;
+};
+
+&dsi1 {
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+	qcom,dual-dsi-mode;
+	status = "ok";
+};
+
+&dsi1_out {
+	remote-endpoint = <&panel_in1>;
+	data-lanes = <0 1 2 3>;
+};
+
+&dsi1_phy {
+	vdds-supply = <&vreg_l1a_0p875>;
+	status = "ok";
+};
+
 &ibb {
 	regulator-min-microvolt = <5600000>;
 	regulator-max-microvolt = <5600000>;
@@ -35,6 +57,32 @@
 	regulator-min-microvolt = <5800000>;
 	regulator-max-microvolt = <5800000>;
 	qcom,soft-start-us = <200>;
+};
+
+&panel {
+	compatible = "sharp,ls055d1sx04";
+
+	dvdd-supply = <&disp_dvdd_vreg>;
+	ports {
+		port@1 {
+			reg = <1>;
+			panel_in1: endpoint {
+				remote-endpoint = <&dsi1_out>;
+			};
+		};
+	};
+};
+
+&pm8005_gpio {
+	ear_en_default: ear-en-active {
+		pins = "gpio1";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		output-low;
+		drive-push-pull;
+		bias-disable;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_HIGH>;
+		power-source = <1>;
+	};
 };
 
 &pmi8998_gpio {
@@ -53,3 +101,12 @@
 	regulator-min-microvolt = <2704000>;
 	regulator-max-microvolt = <2704000>;
 };
+
+
+&pmi8998_wled {
+	status = "okay";
+
+	qcom,num-strings = <3>;
+	qcom,enabled-strings = <0 1 2>;
+};
+
