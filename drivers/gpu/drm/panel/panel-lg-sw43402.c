@@ -9,6 +9,8 @@
 #include <linux/of.h>
 #include <linux/backlight.h>
 
+#include <video/mipi_display.h>
+
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
@@ -149,7 +151,22 @@ static int lg_sw43402_unprepare(struct drm_panel *panel)
 	return 0;
 }
 
+// Try modifying clock for compression
 static const struct drm_display_mode lg_sw43402_mode = {
+	.clock = (720 + 20 + 32 + 20) * (2880 + 20 + 4 + 20) * 60 / 1000,
+	.hdisplay = 720,
+	.hsync_start = 720 + 20,
+	.hsync_end = 720 + 20 + 32,
+	.htotal = 720 + 20 + 32 + 20,
+	.vdisplay = 2880,
+	.vsync_start = 2880 + 20,
+	.vsync_end = 2880 + 20 + 4,
+	.vtotal = 2880 + 20 + 4 + 20,
+	.width_mm = 68,
+	.height_mm = 136,
+};
+
+static const struct drm_display_mode lg_sw43402_mode_full = {
 	.clock = (1440 + 20 + 32 + 20) * (2880 + 20 + 4 + 20) * 60 / 1000,
 	.hdisplay = 1440,
 	.hsync_start = 1440 + 20,
@@ -215,7 +232,7 @@ sw43402_create_backlight(struct mipi_dsi_device *dsi)
 	struct device *dev = &dsi->dev;
 	const struct backlight_properties props = {
 		.type = BACKLIGHT_PLATFORM,
-		.brightness = 1023,
+		.brightness = 255,
 		.max_brightness = 1023,
 	};
 
@@ -244,7 +261,9 @@ static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO_BURST |
-			  MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
+			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
+	// dsi->mode_flags = MIPI_DSI_MODE_VIDEO_BURST |
+	// 		  MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
 
 	drm_panel_init(&ctx->panel, dev, &lg_sw43402_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);

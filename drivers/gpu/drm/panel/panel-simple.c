@@ -3578,6 +3578,20 @@ static const struct panel_desc starry_kr122ea0sra = {
 	},
 };
 
+static const struct drm_display_mode sw43402_dsc_mode = {
+	.clock = (1440 + 20 + 32 + 20) * (2880 + 20 + 4 + 20) * 60 / 1000,
+	.hdisplay = 1440,
+	.hsync_start = 1440 + 20,
+	.hsync_end = 1440 + 20 + 32,
+	.htotal = 1440 + 20 + 32 + 20,
+	.vdisplay = 2880,
+	.vsync_start = 2880 + 20,
+	.vsync_end = 2880 + 20 + 4,
+	.vtotal = 2880 + 20 + 4 + 20,
+	.width_mm = 68,
+	.height_mm = 136,
+};
+
 static const struct drm_display_mode tfc_s9700rtwv43tr_01b_mode = {
 	.clock = 30000,
 	.hdisplay = 800,
@@ -4550,6 +4564,22 @@ static const struct panel_desc_dsi osd101t2045_53ts = {
 	.lanes = 4,
 };
 
+static const struct panel_desc_dsi sw43402_dsc = {
+	.desc = {
+		.modes = &sw43402_dsc_mode,
+		.num_modes = 1,
+		.bpc = 8,
+		.size = {
+			.width = 68,
+			.height = 136,
+		},
+	},
+	.flags = MIPI_DSI_MODE_VIDEO_BURST | MIPI_DSI_CLOCK_NON_CONTINUOUS |
+		 MIPI_DSI_MODE_LPM,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+};
+
 static const struct of_device_id dsi_of_match[] = {
 	{
 		.compatible = "auo,b080uan01",
@@ -4572,6 +4602,9 @@ static const struct of_device_id dsi_of_match[] = {
 	}, {
 		.compatible = "osddisplays,osd101t2045-53ts",
 		.data = &osd101t2045_53ts
+	}, {
+		.compatible = "lge,sw43402-simple",
+		.data = &sw43402_dsc;
 	}, {
 		/* sentinel */
 	}
