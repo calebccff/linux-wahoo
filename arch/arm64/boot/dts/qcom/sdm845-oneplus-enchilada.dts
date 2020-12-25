@@ -15,6 +15,10 @@
 	qcom,board-id = <8 0 17819 22>;
 };
 
+&pmi8998_fg {
+	qcom,battery-capacity-ua = <3300000>;
+};
+
 &display_panel {
 	status = "okay";
 
