@@ -6,11 +6,13 @@
 #include "pmi8998.dtsi"
 #include "pm8005.dtsi"
 
+/delete-node/ &mpss_mem;
+/delete-node/ &venus_mem;
+/delete-node/ &mba_mem;
+/delete-node/ &slpi_mem;
+
 / {
 	aliases {
-		serial0 = &blsp2_uart1;
-		serial1 = &blsp1_uart3;
-		//display0 = &framebuffer0;
 	};
 
 	chosen {
@@ -27,11 +29,29 @@
  		#size-cells = <2>;
  		ranges;
 
+		mpss_mem: memory@8cc00000 {
+			reg = <0 0x8cc00000 0 0x7800000>;
+			no-map;
+		};
+
+		venus_mem: memory@94400000 {
+			reg = <0 0x94400000 0 0x500000>;
+			no-map;
+		};
+
+		mba_mem: memory@94100000 {
+			reg = <0 0x94900000 0 0x200000>;
+			no-map;
+		};
+
+		slpi_mem: memory@94b00000 {
+			reg = <0 0x94b00000 0 0x700000>;
+			no-map;
+		};
+
 		ramoops: ramoops@a1810000 {
 			compatible = "ramoops";
-			reg = <0 0xa1810000 0 0x200000>; /* 64kB */
-			// record-size = <0x4000>; /* 16kB */
-			// console-size = <0>; /* disabled by default */
+			reg = <0 0xa1810000 0 0x200000>;
 			record-size = <0x20000>;
 			console-size = <0x100000>;
 			pmsg-size = <0x80000>;
@@ -43,34 +63,6 @@
 		regulator-name = "vph_pwr";
 		regulator-always-on;
 		regulator-boot-on;
-	};
-};
-
-&pcie0 {
-	status = "disabled";
-};
-
-&spmi_bus {
-	pmic@0 {
-		compatible = "qcom,pm8994", "qcom,spmi-pmic";
-		reg = <0x0 SPMI_USID>;
-		#address-cells = <1>;
-		#size-cells = <0>;
-		pon@800 {
-			compatible = "qcom,pm8916-pon";
-
-			reg = <0x800>;
-			mode-bootloader = <0x2>;
-			mode-recovery = <0x1>;
-
-			pwrkey {
-				compatible = "qcom,pm8941-pwrkey";
-				interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
-				debounce = <15625>;
-				bias-pull-up;
-				linux,code = <KEY_POWER>;
-			};
-		};
 	};
 };
 
@@ -88,6 +80,11 @@
 	};
 };
 
+&pcie0 {
+	status = "disabled";
+};
+
+
 &pm8005_lsid1 {
 	pm8005-regulators {
 		compatible = "qcom,pm8005-regulators";
@@ -103,33 +100,6 @@
 			regulator-always-on;
 		};
 	};
-};
-
-/*
- * The device does contain a USB3 capable type-c port,
- * however it doesn't seem to work when superspeed mode is
- * enabled.
- */
-&usb3 {
-	status = "okay";
-
-	/* Operate "GCC_USB30_MASTER_CLK" in HS mode (>=60 MHz) */
-	assigned-clock-rates = <19200000>, <60000000>;
-
-	/* Disable USB3 pipe_clk requirement */
-	qcom,select-utmi-as-pipe-clk;
-};
-
-&usb3_dwc3 {
-	/* Drop USB 3 SuperSpeed PHY to bring up the "usb0" interface */
-	phys = <&qusb2phy>;
-	phy-names = "usb2-phy";
-
-	/* We can only operate at USB 2.0 speeds */
-	maximum-speed = "high-speed";
-
-	/* Force to peripheral until we have Type-C hooked up */
-	dr_mode = "peripheral";
 };
 
 &qusb2phy {
@@ -321,41 +291,59 @@
 	};
 };
 
-/* Reserved memory changes 
- * Some memory nodes don't match downstream and need to be adjusted
- */
+&spmi_bus {
+	pmic@0 {
+		compatible = "qcom,pm8994", "qcom,spmi-pmic";
+		reg = <0x0 SPMI_USID>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pon@800 {
+			compatible = "qcom,pm8916-pon";
 
-/delete-node/ &mpss_mem;
-/delete-node/ &venus_mem;
-/delete-node/ &mba_mem;
-/delete-node/ &slpi_mem;
+			reg = <0x800>;
+			mode-bootloader = <0x2>;
+			mode-recovery = <0x1>;
 
-/ {
-	reserved-memory {
-		mpss_mem: memory@8cc00000 {
-			reg = <0 0x8cc00000 0 0x7800000>;
-			no-map;
-		};
-
-		venus_mem: memory@94400000 {
-			reg = <0 0x94400000 0 0x500000>;
-			no-map;
-		};
-
-		mba_mem: memory@94100000 {
-			reg = <0 0x94900000 0 0x200000>;
-			no-map;
-		};
-
-		slpi_mem: memory@94b00000 {
-			reg = <0 0x94b00000 0 0x700000>;
-			no-map;
+			pwrkey {
+				compatible = "qcom,pm8941-pwrkey";
+				interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
+				debounce = <15625>;
+				bias-pull-up;
+				linux,code = <KEY_POWER>;
+			};
 		};
 	};
 };
 
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
+};
+
+/*
+ * The device does contain a USB3 capable type-c port,
+ * however it doesn't seem to work when superspeed mode is
+ * enabled.
+ */
+&usb3 {
+	status = "okay";
+
+	/* Operate "GCC_USB30_MASTER_CLK" in HS mode (>=60 MHz) */
+	assigned-clock-rates = <19200000>, <60000000>;
+
+	/* Disable USB3 pipe_clk requirement */
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb3_dwc3 {
+	/* Drop USB 3 SuperSpeed PHY to bring up the "usb0" interface */
+	phys = <&qusb2phy>;
+	phy-names = "usb2-phy";
+
+	/* We can only operate at USB 2.0 speeds */
+	maximum-speed = "high-speed";
+
+	/* Force to peripheral until we have Type-C hooked up */
+	dr_mode = "peripheral";
 };
 
 &ufshc {
