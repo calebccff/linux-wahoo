@@ -19,7 +19,7 @@
 		ranges;
 
 		/* Add "earlycon" intended to be used in combination with UART serial console */
-		bootargs = "clk_ignore_unused earlycon";// loglevel=10 drm.debug=15 debug";
+		bootargs = "clk_ignore_unused earlycon console=ttyGS0,115200";// loglevel=10 drm.debug=15 debug";
 	};
 
 	reserved-memory {
