@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2020, Caleb Connolly <caleb@connolly.tech>
+ */
+
+/dts-v1/;
+
+#include "msm8998-google-wahoo.dtsi"
+
+/ {
+	model = "Google Pixel 2 XL";
+	compatible = "google,taimen", "google,wahoo", "qcom,msm8998", "qcom,msm8998-mtp";
+	qcom,msm-id = <0x124 0x20001>;
+};
