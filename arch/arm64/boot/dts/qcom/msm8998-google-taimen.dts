@@ -9,6 +9,5 @@
 
 / {
 	model = "Google Pixel 2 XL";
-	compatible = "google,taimen", "google,wahoo", "qcom,msm8998", "qcom,msm8998-mtp";
-	qcom,msm-id = <0x124 0x20001>;
+	compatible = "google,taimen", "google,wahoo", "qcom,msm8998";
 };
