@@ -9,6 +9,7 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
 #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
 #include "msm8998.dtsi"
 #include "pm8998.dtsi"
@@ -302,6 +303,35 @@
 	qcom,max-voltage-uv = <4370000>;
 	qcom,min-voltage-uv = <3700000>;
 	qcom,battery-capacity-ua = <3300000>;
+};
+
+&pmi8998_lpg {
+	status = "okay";
+
+	//qcom,power-source = <0>;
+
+	notification-led {
+		color = <LED_COLOR_ID_RGB>;
+		function = LED_FUNCTION_STATUS;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		led@3 {
+			reg = <3>;
+			color = <LED_COLOR_ID_BLUE>;
+		};
+
+		led@4 {
+			reg = <4>;
+			color = <LED_COLOR_ID_GREEN>;
+		};
+
+		led@5 {
+			reg = <5>;
+			color = <LED_COLOR_ID_RED>;
+		};
+	};
 };
 
 &pmi8998_haptics {
