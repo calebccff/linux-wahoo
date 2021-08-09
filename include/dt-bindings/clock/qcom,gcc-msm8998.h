@@ -186,6 +186,8 @@
 #define UFS_UNIPRO_CORE_CLK_SRC					177
 #define GCC_MMSS_GPLL0_CLK					178
 #define HMSS_GPLL0_CLK_SRC					179
+#define HLOS1_VOTE_LPASS_CORE_SMMU_CLK				180
+#define HLOS1_VOTE_LPASS_ADSP_SMMU_CLK				181
 
 #define PCIE_0_GDSC						0
 #define UFS_GDSC						1
@@ -300,5 +302,6 @@
 #define GCC_QUSB2PHY_PRIM_BCR					106
 #define GCC_QUSB2PHY_SEC_BCR					107
 #define GCC_MSS_RESTART						108
+#define GCC_MSS_Q6_BIMC_AXI_CLK					109
 
 #endif
