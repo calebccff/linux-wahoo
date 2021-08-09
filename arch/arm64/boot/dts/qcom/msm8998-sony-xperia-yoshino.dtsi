@@ -369,6 +369,13 @@
 	regulator-soft-start;
 };
 
+&lpass_q6_smmu {
+	qcom,bypass-cbndx = /bits/ 8 <11>;
+	qcom,reset-nodisable-cbs = /bits/ 8 <12>;
+
+	status = "ok";
+};
+
 &mmcc {
 	status = "ok";
 };
