@@ -2902,6 +2902,26 @@ static struct gdsc usb_30_gdsc = {
 	.flags = VOTABLE,
 };
 
+static struct gdsc hlos1_vote_lpass_adsp = {
+	.gdscr = 0x7d034,
+	.gds_hw_ctrl = 0x0,
+	.pd = {
+		.name = "lpass_adsp_gdsc",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+	.flags = VOTABLE,
+};
+
+static struct gdsc hlos1_vote_lpass_core = {
+	.gdscr = 0x7d038,
+	.gds_hw_ctrl = 0x0,
+	.pd = {
+		.name = "lpass_core_gdsc",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+	.flags = ALWAYS_ON,
+};
+
 static struct clk_regmap *gcc_msm8998_clocks[] = {
 	[BLSP1_QUP1_I2C_APPS_CLK_SRC] = &blsp1_qup1_i2c_apps_clk_src.clkr,
 	[BLSP1_QUP1_SPI_APPS_CLK_SRC] = &blsp1_qup1_spi_apps_clk_src.clkr,
@@ -3084,6 +3104,8 @@ static struct gdsc *gcc_msm8998_gdscs[] = {
 	[PCIE_0_GDSC] = &pcie_0_gdsc,
 	[UFS_GDSC] = &ufs_gdsc,
 	[USB_30_GDSC] = &usb_30_gdsc,
+	[LPASS_ADSP_GDSC] = &hlos1_vote_lpass_adsp,
+	[LPASS_CORE_GDSC] = &hlos1_vote_lpass_core,
 };
 
 static const struct qcom_reset_map gcc_msm8998_resets[] = {
