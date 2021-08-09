@@ -106,7 +106,8 @@
 &pmi8998_wled {
 	status = "okay";
 
-	qcom,num-strings = <3>;
-	qcom,enabled-strings = <0 1 2>;
+	//qcom,auto-string-detection;
+	qcom,num-strings = <4>;
+	qcom,enabled-strings = <0 1 2 3>;
 };
 

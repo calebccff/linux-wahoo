@@ -484,7 +484,7 @@
 &pmi8998_wled {
 	status = "okay";
 
-	default-brightness = <3000>;
+	default-brightness = <800>;
 	qcom,switching-freq = <800>;
 	qcom,ovp-millivolt = <29600>;
 	qcom,current-boost-limit = <970>;
