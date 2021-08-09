@@ -192,6 +192,8 @@
 #define PCIE_0_GDSC						0
 #define UFS_GDSC						1
 #define USB_30_GDSC						2
+#define LPASS_ADSP_GDSC						3
+#define LPASS_CORE_GDSC						4
 
 #define GCC_BLSP1_QUP1_BCR					0
 #define GCC_BLSP1_QUP2_BCR					1
