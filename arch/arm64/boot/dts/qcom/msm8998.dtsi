@@ -3532,6 +3532,33 @@
 				label = "lpass";
 				qcom,remote-pid = <2>;
 				mboxes = <&apcs_glb 9>;
+
+				fastrpc {
+					compatible = "qcom,fastrpc";
+					qcom,glink-channels = "fastrpcglink-apps-dsp";
+					label = "adsp";
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					cb@2 {
+						compatible = "qcom,fastrpc-compute-cb";
+						dma-ranges = <0 0x60000000 0 0x18000000>;
+						reg = <2>;
+						iommus = <&lpass_q6_smmu 2>;
+					};
+
+					cb@5 {
+						compatible = "qcom,fastrpc-compute-cb";
+						reg = <5>;
+						iommus = <&lpass_q6_smmu 5>;
+					};
+
+					cb@6 {
+						compatible = "qcom,fastrpc-compute-cb";
+						reg = <6>;
+						iommus = <&lpass_q6_smmu 6>;
+					};
+				};
 			};
 		};
 
