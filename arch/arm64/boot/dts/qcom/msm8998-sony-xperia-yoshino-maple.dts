@@ -79,7 +79,7 @@
 		function = "normal";
 		bias-disable;
 		drive-push-pull;
-		output-low;
+		output-high;
 		power-source = <1>; /* 1.8V */
 		qcom,drive-strength = <1>;
 	};
