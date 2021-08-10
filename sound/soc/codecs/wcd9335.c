@@ -3984,7 +3984,7 @@ static irqreturn_t wcd9335_mbhc_sw_irq(int irq, void *data)
 	struct snd_soc_component *component = wcd->component;
 	bool ins = false;
 
-	if (snd_soc_component_read32(component, WCD9335_ANA_MBHC_MECH) &
+	if (snd_soc_component_read(component, WCD9335_ANA_MBHC_MECH) &
 			WCD9335_MBHC_MECH_DETECT_TYPE_MASK)
 		ins = true;
 
@@ -4000,7 +4000,7 @@ static irqreturn_t wcd9335_mbhc_sw_irq(int irq, void *data)
 		 * If no micbias is enabled, then enable 100uA internal
 		 * current source for Button detection
 		 */
-		if (snd_soc_component_read32(component, WCD9335_ANA_MICB2) &
+		if (snd_soc_component_read(component, WCD9335_ANA_MICB2) &
 						WCD9335_ANA_MICB2_ENABLE)
 			btndet_curr_src = WCD9335_ANA_MBHC_BD_ISRC_OFF;
 		else
@@ -4048,7 +4048,7 @@ static irqreturn_t wcd9335_mbhc_btn_press_irq(int irq, void *data)
 	if (wcd->accessory_type == SND_JACK_HEADPHONE)
 		return IRQ_HANDLED;
 
-	result = snd_soc_component_read32(comp, WCD9335_ANA_MBHC_RESULT_3);
+	result = snd_soc_component_read(comp, WCD9335_ANA_MBHC_RESULT_3);
 	btn_result = result & WCD9335_MBHC_BTN_RESULT_MASK;
 
 	switch (btn_result) {
@@ -4088,7 +4088,7 @@ static irqreturn_t wcd9335_mbhc_bt_rel_irq(int irq, void *data)
 
 
 	if (wcd->detect_accessory_type) {
-		u32 result = snd_soc_component_read32(wcd->component,
+		u32 result = snd_soc_component_read(wcd->component,
 						WCD9335_ANA_MBHC_RESULT_3);
 
 		/* check if its BTN0 thats released */
