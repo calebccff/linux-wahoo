@@ -29,6 +29,7 @@ struct a5xx_gpu {
 
 	struct msm_ringbuffer *cur_ring;
 	struct msm_ringbuffer *next_ring;
+	struct msm_file_private *cur_ctx;
 
 	struct drm_gem_object *preempt_bo[MSM_GPU_MAX_RINGS];
 	struct drm_gem_object *preempt_counters_bo[MSM_GPU_MAX_RINGS];

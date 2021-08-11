@@ -107,8 +107,8 @@
 	status = "okay";
 
 	//qcom,auto-string-detection;
-	qcom,num-strings = <4>;
-	qcom,enabled-strings = <0 1 2 3>;
+	qcom,num-strings = <3>;
+	qcom,enabled-strings = <0 1 2>;
 };
 
 &wcd9335 {

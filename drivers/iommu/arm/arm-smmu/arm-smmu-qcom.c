@@ -182,13 +182,13 @@ static int qcom_adreno_smmu_alloc_context_bank(struct arm_smmu_domain *smmu_doma
 
 static bool qcom_adreno_can_do_ttbr1(struct arm_smmu_device *smmu)
 {
+/*
 	const struct device_node *np = smmu->dev->of_node;
-
 	if (of_device_is_compatible(np, "qcom,msm8996-smmu-v2") ||
 	    of_device_is_compatible(np, "qcom,msm8998-smmu-v2") ||
 	    of_device_is_compatible(np, "qcom,sdm630-smmu-v2"))
 		return false;
-
+*/
 	return true;
 }
 
