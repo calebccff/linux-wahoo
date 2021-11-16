@@ -541,7 +541,12 @@ static void dpu_hw_ctl_intf_cfg(struct dpu_hw_ctl *ctx,
 
 	intf_cfg |= (cfg->intf & 0xF) << 4;
 
-	if (cfg->mode_3d) {
+	/* In DSC we can't set merge, so check for dsc and complain */
+	if (cfg->mode_3d && cfg->dsc)
+		pr_err("DPU1: DSC and Merge 3D both are set!! it may not work\n");
+
+	/* set merge only when dsc is not set */
+	if (cfg->mode_3d && !cfg->dsc) {
 		intf_cfg |= BIT(19);
 		intf_cfg |= (cfg->mode_3d - 0x1) << 20;
 	}
