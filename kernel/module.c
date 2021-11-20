@@ -2977,7 +2977,7 @@ static int elf_validity_check(struct load_info *info)
 	}
 
 	if (memcmp(info->hdr->e_ident, ELFMAG, SELFMAG) != 0) {
-		pr_err("Invalid ELF header magic: != %s\n", ELFMAG);
+		pr_debug("Invalid ELF header magic: != %s\n", ELFMAG);
 		goto no_exec;
 	}
 	if (info->hdr->e_type != ET_REL) {
