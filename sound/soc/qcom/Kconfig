@@ -30,6 +30,12 @@ config SND_SOC_LPASS_APQ8016
 	select SND_SOC_LPASS_CPU
 	select SND_SOC_LPASS_PLATFORM
 
+config SND_SOC_LPASS_MSM8998
+	tristate
+	select SND_SOC_LPASS_CPU
+	select SND_SOC_LPASS_PLATFORM
+	select SND_SOC_LPASS_HDMI
+
 config SND_SOC_LPASS_SC7180
 	tristate
 	select SND_SOC_LPASS_CPU
@@ -143,6 +149,7 @@ config SND_SOC_MSM8998
 	depends on COMMON_CLK
 	select SND_SOC_QDSP6
 	select SND_SOC_QCOM_COMMON
+	select SND_SOC_LPASS_MSM8998
 	help
 	  To add support for audio on Qualcomm Technologies Inc.
 	  MSM8998 SoC-based systems.
