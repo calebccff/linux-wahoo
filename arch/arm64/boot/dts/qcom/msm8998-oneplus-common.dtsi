@@ -512,6 +512,19 @@
 		memory-region = <&zap_shader_region>; // gpu_mem?
 		firmware-name = "qcom/msm8998/oneplus/a540_zap.mbn";
 	};
+
+	/*
+	 * We are lacking support for the GPU regulator. Hence, disable higher
+	 * frequencies for now to prevent the platform from hanging on high
+	 * graphics loads. Perhaps the pm8005_s1 voltage below could be
+	 * adjusted but I'd rather not touch it.
+	 */
+	opp-table {
+		/delete-node/ opp-710000097;
+		/delete-node/ opp-670000048;
+		/delete-node/ opp-596000097;
+		/delete-node/ opp-515000097;
+	};
 };
 
 &adreno_smmu {
