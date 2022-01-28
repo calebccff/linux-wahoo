@@ -493,7 +493,7 @@ static const struct wcd9335_reg_mask_val wcd9335_codec_reg_init[] = {
 	{WCD9335_RCO_CTRL_2, 0x0F, 0x08},
 	{WCD9335_RX_BIAS_FLYB_MID_RST, 0xF0, 0x10},
 	{WCD9335_FLYBACK_CTRL_1, 0x20, 0x20},
-	{WCD9335_HPH_OCP_CTL, 0xFF, 0x5A},
+	{WCD9335_HPH_OCP_CTL, 0xFF, 0x7A}, /*downstream is ff 7a */
 	{WCD9335_HPH_L_TEST, 0x01, 0x01},
 	{WCD9335_HPH_R_TEST, 0x01, 0x01},
 	{WCD9335_CDC_BOOST0_BOOST_CFG1, 0x3F, 0x12},
@@ -506,6 +506,13 @@ static const struct wcd9335_reg_mask_val wcd9335_codec_reg_init[] = {
 	{WCD9335_CDC_RX0_RX_PATH_SEC0, 0xFC, 0xF4},
 	{WCD9335_HPH_REFBUFF_LP_CTL, 0x08, 0x08},
 	{WCD9335_HPH_REFBUFF_LP_CTL, 0x06, 0x02},
+
+	{WCD9335_DIFF_LO_CORE_OUT_PROG, 0xFC, 0xA0},
+	{WCD9335_SE_LO_COM1, 0xFF, 0xC0},
+	{WCD9335_CDC_RX3_RX_PATH_SEC0, 0xFC, 0xF4},
+	{WCD9335_CDC_RX4_RX_PATH_SEC0, 0xFC, 0xF4},
+	{WCD9335_CDC_RX5_RX_PATH_SEC0, 0xFC, 0xF8},
+	{WCD9335_CDC_RX6_RX_PATH_SEC0, 0xFC, 0xF8},
 };
 
 /* Cutoff frequency for high pass filter */
@@ -3753,11 +3760,12 @@ static int wcd9335_codec_enable_hphl_pa(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *comp = snd_soc_dapm_to_component(w->dapm);
 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
 	int hph_mode = wcd->hph_mode;
-
+pr_err("%s\n", __func__);
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		break;
 	case SND_SOC_DAPM_POST_PMU:
+pr_err("%s post pmu\n", __func__);
 		/*
 		 * 7ms sleep is required after PA is enabled as per
 		 * HW requirement
@@ -3781,6 +3789,7 @@ static int wcd9335_codec_enable_hphl_pa(struct snd_soc_dapm_widget *w,
 
 		break;
 	case SND_SOC_DAPM_PRE_PMD:
+pr_err("%s pre pmd\n", __func__);
 		wcd9335_codec_hph_post_pa_config(wcd, hph_mode, event);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
@@ -3902,7 +3911,7 @@ static int wcd9335_codec_enable_hphr_pa(struct snd_soc_dapm_widget *w,
 	struct snd_soc_component *comp = snd_soc_dapm_to_component(w->dapm);
 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
 	int hph_mode = wcd->hph_mode;
-
+pr_err("%s\n", __func__);
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		break;
