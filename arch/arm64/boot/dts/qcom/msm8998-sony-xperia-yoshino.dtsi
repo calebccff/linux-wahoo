@@ -778,12 +778,13 @@
 		#clock-cells = <0>;
 
 		interrupt-parent = <&tlmm>;
-		interrupts = <54 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-names  = "intr1";
+		interrupts = <54 IRQ_TYPE_LEVEL_HIGH>,
+			     <53 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names  = "intr1", "intr2";
 		interrupt-controller;
 		#interrupt-cells = <1>;
 
-		reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&tlmm 64 GPIO_ACTIVE_HIGH>;
 
 		slim-ifc-dev  = <&tasha_ifd>;
 
