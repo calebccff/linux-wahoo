@@ -2032,6 +2032,18 @@ config MFD_WCD934X
 	  This driver provides common support WCD934x audio codec and its
 	  associated Pin Controller, Soundwire Controller and Audio codec.
 
+config MFD_WCD9335
+	tristate "Support for WCD9335 Codec"
+	depends on SLIMBUS
+	select REGMAP
+	select REGMAP_SLIMBUS
+	select REGMAP_IRQ
+	select MFD_CORE
+	help
+	  Support for the Qualcomm WCD9335 Codec.
+	  This driver provides common support WCD9335 audio codec and its
+	  associated Pin Controller, Soundwire Controller and Audio codec.
+
 config MFD_ATC260X
 	tristate
 	select MFD_CORE
