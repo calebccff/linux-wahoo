@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/panel/samsung,s6e3fc1.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Samsung S6E3FC1 AMOLED panel with command mode DSI controller
+
+maintainers:
+  - Jami Kettunen <jami.kettunen@somainline.org>
+
+description: |+
+  This panel is found on the OnePlus 5T and it runs in command mode.
+
+allOf:
+  - $ref: panel-common.yaml#
+
+properties:
+  compatible:
+    const: samsung,s6e3fc1
+  reg: true
+  reset-gpios: true
+  disp-te-gpios: true
+  vddio-supply:
+    description: vddio supply
+
+required:
+  - compatible
+  - reg
+  - vddio-supply
+  - reset-gpios
+  - disp-te-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+
+    dsi {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            panel@0 {
+                    reg = <0>;
+
+                    compatible = "samsung,s6e3fc1";
+
+                    vddio-supply = <&vreg_l14a_1p88>;
+                    reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+                    disp-te-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
+            };
+    };
