@@ -25,16 +25,9 @@
 	qcom,soft-start-us = <800>;
 };
 
-&pm8005_gpio {
-	ear_en_default: ear-en-active {
-		pins = "gpio1";
-		function = PMIC_GPIO_FUNC_NORMAL;
-		output-low;
-		drive-push-pull;
-		bias-disable;
-		qcom,drive-strength = <PMIC_GPIO_STRENGTH_HIGH>;
-		power-source = <1>;
-	};
+&wcd9335 {
+	pinctrl-0 = <&cdc_reset_n &wcd_int_n>;
+	pinctrl-names = "default";
 };
 
 &vreg_l18a_2p85 {
