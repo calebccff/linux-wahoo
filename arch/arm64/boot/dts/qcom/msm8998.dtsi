@@ -928,6 +928,9 @@
 		};
 	};
 
+	sound: sound {
+	};
+
 	thermal-zones {
 		cpu0-thermal {
 			polling-delay-passive = <250>;
@@ -3511,6 +3514,7 @@
 			#dma-cells = <1>;
 			qcom,ee = <1>;
 			qcom,num-ees = <2>;
+			status = "disabled";
 		};
 
 		slim: slim@171c0000 {
@@ -3520,21 +3524,21 @@
 
 			qcom,apps-ch-pipes = <0x1f80>;
 			qcom,ea-pc = <0x210>;
-			status = "okay";
+
 			dmas =	<&slimbam 3>, <&slimbam 4>,
 				<&slimbam 5>, <&slimbam 6>;
 			dma-names = "rx", "tx", "tx2", "rx2";
 
 			#address-cells = <1>;
 			#size-cells = <0>;
+			status = "disabled";
 
-			ngd@1 {
+			slim_ngd: ngd@1 {
 				reg = <1>;
-				#address-cells = <2>;
-				#size-cells = <0>;
+				#address-cells = <1>;
+				#size-cells = <1>;
 			};
 		};
-
 
 		remoteproc_adsp: remoteproc@17300000 {
 			compatible = "qcom,msm8998-adsp-pas";
@@ -3630,7 +3634,7 @@
 
 					cb@2 {
 						compatible = "qcom,fastrpc-compute-cb";
-						dma-ranges = <0 0x60000000 0 0x18000000>;
+						//dma-ranges = <0 0x60000000 0 0x18000000>;
 						reg = <2>;
 						iommus = <&lpass_q6_smmu 2>;
 					};
