@@ -100,7 +100,9 @@ obj-$(CONFIG_LEDS_USER)			+= uleds.o
 obj-$(CONFIG_LEDS_CLASS_FLASH)		+= flash/
 
 # RGB LED Drivers
-obj-$(CONFIG_LEDS_CLASS_MULTICOLOR)	+= rgb/
+# obj-$(CONFIG_LEDS_CLASS_MULTICOLOR)	+= rgb/
+
+obj-$(CONFIG_LEDS_QCOM_LPG)            += rgb/leds-qcom-lpg.o
 
 # LED Triggers
 obj-$(CONFIG_LEDS_TRIGGERS)		+= trigger/

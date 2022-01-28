@@ -918,7 +918,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
 		return ret;
 	}
 
-	if (color == LED_COLOR_ID_MULTI)
+	if (color == LED_COLOR_ID_RGB)
 		num_channels = of_get_available_child_count(np);
 	else
 		num_channels = 1;
@@ -930,7 +930,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
 	led->lpg = lpg;
 	led->num_channels = num_channels;
 
-	if (color == LED_COLOR_ID_MULTI) {
+	if (color == LED_COLOR_ID_RGB) {
 		info = devm_kcalloc(lpg->dev, num_channels, sizeof(*info), GFP_KERNEL);
 		if (!info)
 			return -ENOMEM;
@@ -986,7 +986,7 @@ static int lpg_add_led(struct lpg *lpg, struct device_node *np)
 
 	cdev->brightness_set(cdev, cdev->brightness);
 
-	if (color == LED_COLOR_ID_MULTI)
+	if (color == LED_COLOR_ID_RGB)
 		ret = devm_led_classdev_multicolor_register(lpg->dev, &led->mcdev);
 	else
 		ret = devm_led_classdev_register(lpg->dev, &led->cdev);

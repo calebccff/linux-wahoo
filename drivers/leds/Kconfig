@@ -869,8 +869,17 @@ source "drivers/leds/blink/Kconfig"
 comment "Flash and Torch LED drivers"
 source "drivers/leds/flash/Kconfig"
 
-comment "RGB LED drivers"
-source "drivers/leds/rgb/Kconfig"
+#comment "RGB LED drivers"
+#source "drivers/leds/rgb/Kconfig"
+
+config LEDS_QCOM_LPG
+       tristate "LED support for Qualcomm LPG"
+       depends on LEDS_CLASS_MULTICOLOR
+       depends on OF
+       depends on SPMI
+       help
+         This option enables support for the Light Pulse Generator found in a
+         wide variety of Qualcomm PMICs.
 
 comment "LED Triggers"
 source "drivers/leds/trigger/Kconfig"
