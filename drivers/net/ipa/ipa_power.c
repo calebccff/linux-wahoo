@@ -489,6 +489,7 @@ ipa_power_init(struct device *dev, const struct ipa_power_data *data)
 
 	pm_runtime_set_autosuspend_delay(dev, IPA_AUTOSUSPEND_DELAY);
 	pm_runtime_use_autosuspend(dev);
+	pm_runtime_forbid(dev);
 	pm_runtime_enable(dev);
 
 	return power;
