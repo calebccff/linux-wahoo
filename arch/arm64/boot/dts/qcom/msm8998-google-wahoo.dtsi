@@ -79,6 +79,14 @@
 	};
 };
 
+&apc_cprh {
+	status = "ok";
+};
+
+&cpufreq_hw {
+	status = "ok";
+};
+
 &pm8005_lsid1 {
 	pm8005-regulators {
 		compatible = "qcom,pm8005-regulators";
@@ -107,18 +115,18 @@
 &remoteproc_adsp {
 	status = "okay";
 
-	firmware-name = "qcom/pixel2/adsp.mdt";
+	firmware-name = "qcom/msm8998/wahoo/adsp.mbn";
 };
 
 &remoteproc_mss {
-	firmware-name = "qcom/pixel2/mba.mbn",
-	                "qcom/pixel2/modem.mdt";
+	firmware-name = "qcom/msm8998/wahoo/mba.mbn",
+	                "qcom/msm8998/wahoo/modem.mbm";
 };
 
 &remoteproc_slpi {
 	status = "okay";
 
-	firmware-name = "qcom/pixel2/slpi_v2.mdt";
+	firmware-name = "qcom/msm8998/wahoo/slpi_v2.mbn";
 };
 
 &rpm_requests {
@@ -335,6 +343,8 @@
 };
 
 &ufshc {
+	status = "okay";
+
 	vcc-supply = <&vreg_l20a_2p95>;
 	vccq-supply = <&vreg_l26a_1p2>;
 	vccq2-supply = <&vreg_s4a_1p8>;
@@ -344,6 +354,8 @@
 };
 
 &ufsphy {
+	status = "okay";
+
 	vdda-phy-supply = <&vreg_l1a_0p875>;
 	vdda-pll-supply = <&vreg_l2a_1p2>;
 	vddp-ref-clk-supply = <&vreg_l26a_1p2>;
