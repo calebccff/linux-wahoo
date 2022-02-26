@@ -287,7 +287,7 @@ config DRM_PANEL_LG_LG4573
 
 config DRM_PANEL_LG_SW43402
 	tristate "LG SW43402 DSI cmd mode panel"
-	depends on OF && SPI
+	depends on OF
 	select VIDEOMODE_HELPERS
 	help
 	  Say Y here if you want to enable support for LG SW43402DSI cmd mode panel found

@@ -8,15 +8,21 @@
 #include <linux/module.h>
 #include <linux/of.h>
 
+#include <drm/drm_device.h>
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
+#include <drm/drm_print.h>
+#include <drm/drm_dsc.h>
+
+#include <video/mipi_display.h>
 
 struct lg_sw43402 {
 	struct drm_panel panel;
 	struct mipi_dsi_device *dsi;
 	struct gpio_desc *reset_gpio;
 	bool prepared;
+	bool enabled;
 };
 
 static inline struct lg_sw43402 *to_lg_sw43402(struct drm_panel *panel)
@@ -40,6 +46,34 @@ static void lg_sw43402_reset(struct lg_sw43402 *ctx)
 	usleep_range(10000, 11000);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	usleep_range(10000, 11000);
+}
+
+static int lg_panel_enable(struct drm_panel *panel)
+{
+	struct lg_sw43402 *ctx = to_lg_sw43402(panel);
+	struct drm_dsc_picture_parameter_set pps;
+	int ret;
+
+	if (ctx->enabled)
+		return 0;
+
+	if (panel->dsc) {
+		/* this panel uses DSC so send the pps */
+		drm_dsc_pps_payload_pack(&pps, panel->dsc);
+		print_hex_dump(KERN_INFO, "DSC params:", DUMP_PREFIX_NONE,
+                               16, 1, &pps, sizeof(pps), false);
+
+		//ret = mipi_dsi_picture_parameter_set(pinfo->link, &pps);
+		//if (ret < 0) {
+		//	DRM_DEV_ERROR(panel->dev,
+		//		      "failed to set pps: %d\n", ret);
+		//	return ret;
+		//}
+	}
+
+	ctx->enabled = true;
+
+	return 0;
 }
 
 static int lg_sw43402_on(struct lg_sw43402 *ctx)
@@ -133,6 +167,8 @@ static int lg_sw43402_unprepare(struct drm_panel *panel)
 	struct device *dev = &ctx->dsi->dev;
 	int ret;
 
+	return 0;
+#if 0
 	if (!ctx->prepared)
 		return 0;
 
@@ -144,6 +180,7 @@ static int lg_sw43402_unprepare(struct drm_panel *panel)
 
 	ctx->prepared = false;
 	return 0;
+#endif
 }
 
 static const struct drm_display_mode lg_sw43402_mode = {
@@ -181,6 +218,7 @@ static int lg_sw43402_get_modes(struct drm_panel *panel,
 
 static const struct drm_panel_funcs lg_sw43402_panel_funcs = {
 	.prepare = lg_sw43402_prepare,
+	.enable = lg_panel_enable,
 	.unprepare = lg_sw43402_unprepare,
 	.get_modes = lg_sw43402_get_modes,
 };
@@ -188,11 +226,16 @@ static const struct drm_panel_funcs lg_sw43402_panel_funcs = {
 static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
+	struct panel_info *pinfo;
 	struct lg_sw43402 *ctx;
-	int ret;
+	struct drm_dsc_config *dsc;
 
 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
+		return -ENOMEM;
+
+	dsc = devm_kzalloc(&dsi->dev, sizeof(*dsc), GFP_KERNEL);
+	if (!dsc)
 		return -ENOMEM;
 
 	ctx->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
@@ -211,19 +254,21 @@ static int lg_sw43402_probe(struct mipi_dsi_device *dsi)
 	drm_panel_init(&ctx->panel, dev, &lg_sw43402_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
 
-	ret = drm_panel_add(&ctx->panel);
-	if (ret < 0) {
-		dev_err(dev, "Failed to add panel: %d\n", ret);
-		return ret;
-	}
+	drm_panel_add(&ctx->panel);
 
-	ret = mipi_dsi_attach(dsi);
-	if (ret < 0) {
-		dev_err(dev, "Failed to attach to DSI host: %d\n", ret);
-		return ret;
-	}
+	dsc->dsc_version_major = 0x1;
+	dsc->dsc_version_minor = 0x1;
 
-	return 0;
+	dsc->slice_height = 16;
+	dsc->slice_width = 720;
+	dsc->slice_count = 1;
+	dsc->bits_per_component = 8;
+	dsc->bits_per_pixel = 8;
+	dsc->block_pred_enable = true;
+
+	ctx->panel.dsc = dsc;
+
+	return mipi_dsi_attach(dsi);
 }
 
 static int lg_sw43402_remove(struct mipi_dsi_device *dsi)
@@ -241,7 +286,7 @@ static int lg_sw43402_remove(struct mipi_dsi_device *dsi)
 }
 
 static const struct of_device_id lg_sw43402_of_match[] = {
-	{ .compatible = "lge,sw43402" }, // FIXME
+	{ .compatible = "lg,sw43402" }, // FIXME
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, lg_sw43402_of_match);
