@@ -20,7 +20,8 @@
 		#size-cells = <2>;
 		ranges;
 
-		bootargs = "clk_ignore_unused earlycon console=ttyGS0,115200";
+		stdout-path = "ttyGS0:9600n8";
+		bootargs = "clk_ignore_unused earlycon console=ttyGS0,9600";
 	};
 
 	reserved-memory {
@@ -55,12 +56,42 @@
 			console-size = <0x100000>;
 			pmsg-size = <0x80000>;
 		};
+
+		zap_shader_region: memory@f6900000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0xf6900000 0x0 0x2000>;
+			no-map;
+		};
 	};
 
 	vph_pwr: vph-pwr-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vph_pwr";
 		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	panel_ldo_vddio_supply: panel-ldo {
+		compatible = "regulator-fixed";
+		regulator-name = "panel_ldo_vddio_supply";
+
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		gpio = <&tlmm 133 0>;
+		enable-active-high;
+		regulator-boot-on;
+	};
+
+	panel_ldo_vpnl_supply: panel-ldo {
+		compatible = "regulator-fixed";
+		regulator-name = "panel_ldo_vpnl_supply";
+
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		gpio = <&tlmm 21 0>;
+		enable-active-high;
 		regulator-boot-on;
 	};
 };
@@ -80,11 +111,11 @@
 };
 
 &apc_cprh {
-	status = "ok";
+	status = "okay";
 };
 
 &cpufreq_hw {
-	status = "ok";
+	status = "okay";
 };
 
 &pm8005_lsid1 {
@@ -311,8 +342,126 @@
 	};
 };
 
+&mdss {
+	status = "okay";
+};
+
+&mdss_mdp {
+	status = "okay";
+};
+
+&dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+
+	panel: panel@0 {
+		reg = <0>;
+
+		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+		disp-te-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
+
+		vddio-supply = <&panel_ldo_vddio_supply>;
+		vpnl-supply = <&panel_ldo_vpnl_supply>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n &mdp_vsync_n>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_phy {
+	status = "okay";
+	vdds-supply = <&vreg_l1a_0p875>;
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+	data-lanes = <0 1 2 3>;
+};
+
+/* Adreno 540 GPU */
+&gpucc {
+	status = "okay";
+};
+
+&gpu_mem {
+	compatible = "shared-dma-pool";
+};
+
+&adreno_gpu {
+	status = "okay";
+
+	zap-shader {
+		memory-region = <&zap_shader_region>; // gpu_mem?
+		firmware-name = "qcom/msm8998/wahoo/a540_zap.mbn";
+	};
+
+	/*
+	 * We are lacking support for the GPU regulator. Hence, disable higher
+	 * frequencies for now to prevent the platform from hanging on high
+	 * graphics loads. Perhaps the pm8005_s1 voltage below could be
+	 * adjusted but I'd rather not touch it.
+	 */
+	opp-table {
+		/delete-node/ opp-710000097;
+		/delete-node/ opp-670000048;
+		/delete-node/ opp-596000097;
+		/delete-node/ opp-515000097;
+	};
+};
+
+&adreno_smmu {
+	status = "okay";
+};
+
+/*
+ * HACK: Shoot GPU voltage high to stabilize Adreno 540 at high frequencies
+ *       until the GPU CPR is brought up.
+ */
+&pm8005_s1 {
+	regulator-min-microvolt = <988000>; /* 0,524V -> 0,988V */
+	//regulator-max-microvolt = <1100000>;
+};
+
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
+
+	disp_en_default: disp-en {
+		pins = "gpio62";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	panel_reset_n: panel-rst-n {
+		pins = "gpio94";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	panel_int_err: panel-int-err {
+		pins = "gpio11";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	mdp_vsync_n: mdp-vsync-n {
+		pins = "gpio10";
+		function = "mdp_vsync_a";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
 };
 
 /*
