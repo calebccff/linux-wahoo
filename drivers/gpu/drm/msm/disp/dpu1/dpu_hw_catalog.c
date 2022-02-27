@@ -991,6 +991,11 @@ static const struct dpu_pingpong_cfg sc7280_pp[] = {
 	.features = 0, \
 	}
 
+static struct dpu_dsc_cfg msm8998_dsc[] = {
+	DSC_BLK("dsc_0", DSC_0, 0x81000),
+	DSC_BLK("dsc_1", DSC_1, 0x81400),
+};
+
 static struct dpu_dsc_cfg sdm845_dsc[] = {
 	DSC_BLK("dsc_0", DSC_0, 0x80000),
 	DSC_BLK("dsc_1", DSC_1, 0x80400),
@@ -1419,8 +1424,8 @@ static void msm8998_cfg_init(struct dpu_mdss_cfg *dpu_cfg)
 		.mixer = msm8998_lm,
 		.pingpong_count = ARRAY_SIZE(sdm845_pp),
 		.pingpong = sdm845_pp,
-		.dsc_count = ARRAY_SIZE(sdm845_dsc),
-		.dsc = sdm845_dsc,
+		.dsc_count = ARRAY_SIZE(msm8998_dsc),
+		.dsc = msm8998_dsc,
 		.intf_count = ARRAY_SIZE(msm8998_intf),
 		.intf = msm8998_intf,
 		.vbif_count = ARRAY_SIZE(msm8998_vbif),
