@@ -20,8 +20,9 @@
 		#size-cells = <2>;
 		ranges;
 
-		stdout-path = "ttyGS0:9600n8";
-		bootargs = "clk_ignore_unused earlycon console=ttyGS0,9600";
+		stdout-path = "serial0:115200n8";
+
+		bootargs = "clk_ignore_unused earlycon=msm_serial_dm keep_bootcon console=ttyGS0,115200 console=ttyMSM1,115200";
 	};
 
 	reserved-memory {
@@ -94,6 +95,10 @@
 		enable-active-high;
 		regulator-boot-on;
 	};
+};
+
+&blsp2_uart1 {
+	status = "okay";
 };
 
 &blsp1_uart3 {
@@ -342,6 +347,14 @@
 	};
 };
 
+&mmcc {
+	status = "okay";
+};
+
+&mmss_smmu {
+	status = "okay";
+};
+
 &mdss {
 	status = "okay";
 };
@@ -362,13 +375,13 @@
 		reg = <0>;
 
 		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
-		disp-te-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
+		disp-te-gpios = <&tlmm 10 GPIO_ACTIVE_LOW>;
 
 		vddio-supply = <&panel_ldo_vddio_supply>;
 		vpnl-supply = <&panel_ldo_vpnl_supply>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n &mdp_vsync_n>;
+		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n>;
 
 		port {
 			panel_in: endpoint {
